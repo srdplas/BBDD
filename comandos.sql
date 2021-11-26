@@ -1,10 +1,5 @@
 
 
-alter table alumnos modify sexo char(1);
-alter table alumnos modify apellido2 varchar(20);
-alter table alumnos ADD apellido2 varchar(20);
-alter table alumnos DROP curso_alumnos_fk;
-alter table curso add constraint fechas CHECK (fecha_inicio<fecha_fin);
 
 CREATE TABLE alumnos (
     nombre varchar(20) ,
@@ -20,7 +15,7 @@ CREATE TABLE alumnos (
     CONSTRAINT sexo_ck CHECK (sexo = 'M' or sexo = 'H')
 );
 
-INSERT INTO alumnos ();
+
 
 CREATE TABLE curso(
     nombre_curso varchar(40)  UNIQUE,
@@ -36,29 +31,23 @@ CREATE TABLE curso(
 
 
 CREATE TABLE profesores (
-  nombre_profesor varchar(20) UNIQUE,
+  nombre varchar(20) UNIQUE,
   DNI varchar(9),
   direccion varchar(40),
   titulo varchar(30),
-  gana decimal(6,2),
+  gana decimal(6,2) not null,
   constraint profesores_pk PRIMARY KEY (DNI)
 
 );
 
--- Añadimos los apellidos y nobre lo editamos
-update profesores set nombre_profesor
-ALTER TABLE profesores RENAME COLUMN nombre_profesor to nombre;
-alter table profesores modify nombre_profesor=nombre;
-alter table profesores add apellido1 VARCHAR (30);
-alter table profesores add apellido2 VARCHAR (30);
-INSERT INTO alumnos  VALUES ('Yuri', 'Cabrero', 'Zayas', '29548797F', 'c/ tomares nº 29', '2000-09-17', 'H', 1);
-update alumnos set sexo='H' WHERE codigo=1;
-alter table profesores modify gana decimal(6,2);
+
+
+
 -- INSERTAMOS VALORES Y BORRAMOS--
-DELETE from profesores WHERE nombre='Fernando';
+
 INSERT INTO profesores values ('Juan', '32432455', 'Puerta Negra, 4', 'Ing.Informatica', 7500, 'Arch', 'Lopez');
 INSERT INTO profesores values ('Maria', '43215643', 'Juan Alfonso 32', 'Lda. Fil. Inglesa', 5400, 'Oliva', 'Rubio');
-INSERT INTO curso values ('Inglés Básico', 1, 15, '2000-11-01', '2000-12-22', 120, '43215643');
+INSERT INTO curso values ('Inglés Básico', 3, 15, '2000-11-01', '2000-12-22', 30, '43215643');
 INSERT INTO curso values ('Administración Linux', 2, NULL, '2000-12-20', NULL, 8, '32432455');
 INSERT INTO alumnos values ('Lucas', 'Manilva', 'López', '123523', 'Alhamar 3', '1979-11-01', 'V', 1);
 INSERT INTO alumnos values ('Jose', 'Perez', 'Caballar', '4896765', 'Jarcha 5', '1977-02-03', 'H',  1);
@@ -68,4 +57,39 @@ INSERT INTO alumnos values ('Antonia', 'Lopez', 'Alcantara', '2567567', 'Maniqu�
 INSERT INTO alumnos values ('Sergio', 'Navas', 'Retal', '123523', null, NULL, 'p', null); -- va a dar error dni repetido sexo no es M O H y el codigo curso no puede ser nulo
 /*INSERT INTO curso (`nombre_curso`, `cod_curso`, `maximo_alumnos`, `fecha_inicio`, `fecha_fin`, `num_horas`, `dni_profesor`) VALUES
 	('Entorno', 1, 25, '2019-12-01', '2020-12-01', 400, '24576578D');*/
+
+ALTER TABLE profesores ADD constraint edad_ck CHECK (edad>=18 and edad<=65); -- Añadimos restricciones para que la edad este entre 18 y 65
+-- Como no existe el campo de edad en la tabla de profesores, debemos añadirla.
+ALTER TABLE profesores ADD column edad int (2);
+-- AÑadimos restricciones para que minimo de alumnos de un curso sea 10
+ALTER TABLE curso ADD constraint num_alumnos CHECK (maximo_alumnos>10) NOT NULL; 
+-- Cambiamos las horas de los cursos para luego aplicarle la restriccion ya que los valores minimos no son 100
+update curso set num_horas=100;
+-- EL Numero de horas minimo del curso es de 100
+ALTER TABLE curso ADD CONSTRAINT hora_ck CHECK (num_horas>100); 
+
+
+-- Restriccion fecha fin > fecha inicio
+
+alter table curso add constraint fechas CHECK (fecha_inicio<fecha_fin);
+
+
+-- Añadimos los apellidos ya que no existian las columnas
+alter table profesores add apellido1 VARCHAR (30);
+alter table profesores add apellido2 VARCHAR (30);
+-- Restriccion Not null gana a profesores
+ALTER TABLE profesores add constraint not null (DNI, gana);
+
+-- Quitamos la restriccion
+
+ALTER TABLE alumnos DROP CONSTRAINT sexo_ck;
+
+-- Añadimos la restriccion unique al curso matriculado;
+Alter table alumnos  add constraint curso_unique_ck UNIQUE (DNI, curso);
+-- Añadimos restriccion de Fecha Inicio No nulo;
+Alter table curso modify fecha_inicio date not null;
+
+-- Cambiamos la PK de profesores del DNI al nombre y apellidos
+--Alter table profesores modify profesores_pk values (apellido1, apellido2);
+
 
