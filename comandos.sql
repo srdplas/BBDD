@@ -80,7 +80,5 @@ Alter table alumnos  add constraint curso_unique_ck UNIQUE (DNI, curso);
 -- Añadimos restriccion de Fecha Inicio No nulo;
 Alter table curso modify fecha_inicio date not null;
 
--- Cambiamos la PK de profesores del DNI al nombre y apellidos
---Alter table profesores modify profesores_pk values (apellido1, apellido2);
-
-
+-- Nuestra tabla cursos se llamaba curso, le cambiamos el nombre para que este como en el ejercicio
+ALTER TABLE curso RENAME TO cursos;
