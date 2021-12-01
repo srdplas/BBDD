@@ -52,7 +52,7 @@ INSERT INTO curso values ('Administración Linux', 2, NULL, '2000-12-20', NULL, 
 INSERT INTO alumnos values ('Lucas', 'Manilva', 'López', '123523', 'Alhamar 3', '1979-11-01', 'V', 1);
 INSERT INTO alumnos values ('Jose', 'Perez', 'Caballar', '4896765', 'Jarcha 5', '1977-02-03', 'H',  1);
 INSERT INTO alumnos values ('Manuel', 'Alcantara', 'Pedros', '3123689', 'Julian 2', NULL, NULL, 1);
-update alumnos set curso=2 where curso=1;
+
 INSERT INTO alumnos values ('Antonia', 'Lopez', 'Alcantara', '2567567', 'Maniquí 21', NULL, 'M', 1);
 INSERT INTO alumnos values ('Sergio', 'Navas', 'Retal', '123523', null, NULL, 'p', null); -- va a dar error dni repetido sexo no es M O H y el codigo curso no puede ser nulo
 /*INSERT INTO curso (`nombre_curso`, `cod_curso`, `maximo_alumnos`, `fecha_inicio`, `fecha_fin`, `num_horas`, `dni_profesor`) VALUES
@@ -62,7 +62,8 @@ ALTER TABLE profesores ADD constraint edad_ck CHECK (edad>=18 and edad<=65); -- 
 -- Como no existe el campo de edad en la tabla de profesores, debemos añadirla.
 ALTER TABLE profesores ADD column edad int (2);
 -- AÑadimos restricciones para que minimo de alumnos de un curso sea 10
-ALTER TABLE curso ADD constraint num_alumnos CHECK (maximo_alumnos>10) NOT NULL; 
+ALTER TABLE curso ADD constraint num_alumnos CHECK (maximo_alumnos<10) NOT NULL; 
+update curso set maximo_alumnos=11 where curso=2;
 -- Cambiamos las horas de los cursos para luego aplicarle la restriccion ya que los valores minimos no son 100
 update curso set num_horas=100;
 -- EL Numero de horas minimo del curso es de 100
