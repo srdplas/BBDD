@@ -86,7 +86,7 @@ ALTER TABLE profesores add constraint not null (DNI, gana);
 ALTER TABLE alumnos DROP CONSTRAINT sexo_ck;
 
 -- Añadimos la restriccion unique al curso matriculado;
-Alter table alumnos  add constraint curso_unique_ck UNIQUE (DNI, curso);
+Alter table alumnos  add constraint curso_unique_ck UNIQUE (DNI, curso); -- No podría haber mas de un alumno por curso.
 -- Añadimos restriccion de Fecha Inicio No nulo;
 Alter table curso modify fecha_inicio date not null;
 
