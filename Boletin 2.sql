@@ -1,4 +1,5 @@
 -- Creamos las tablas de la base de datos
+Create database Boletin2;
 -- Cambiamos los varchar2 y los number por int ya que me da error de syntaxis
 -- Tabla empleados
 CREATE TABLE empleados (
@@ -14,6 +15,25 @@ CREATE TABLE empleados (
     sexo CHAR(1),
     fecha_nac DATE,
     constraint empleado_pk primary key (dni)
+);
+
+-- Creamos la tabla trabajos
+CREATE TABLE trabajos(
+    trabajo_cod int(5),
+    nombre_trab varchar(20) not null,
+    salario_min decimal(2,1),
+    salario_max decimal(2,1),
+    constraint trabajo_pk primary key (trabajo_cod)
+);
+
+-- Creamos la tabla universidades
+CREATE TABLE universidades(
+    univ_cod int(5),
+    nombre_univ varchar(25) not null,
+    ciudad varchar(20),
+    municipio char(20),
+    cod_postal char(5),
+    constraint universidades_pk primary key (univ_cod)
 );
 
 -- Tabla departamentos
@@ -36,15 +56,7 @@ CREATE TABLE estudios(
     constraint estudios_universidad_fk foreign key (universidad) references universidades (univ_cod) ON UPDATE cascade ON DELETE CASCADE
     
 );
--- Creamos la tabla universidades
-CREATE TABLE universidades(
-    univ_cod int(5),
-    nombre_univ varchar(25) not null,
-    ciudad varchar(20),
-    municipio varchar(2),
-    cod_postal varchar(5),
-    constraint universidades_pk primary key (univ_cod)
-);
+
 -- Creamos la tabla historial laboral con 3 fk 2 de tabla empleados 1 tabla departamentos 
 CREATE TABLE historial_laboral(
     empleado_dni int(8),
@@ -66,15 +78,6 @@ CREATE TABLE historial_salarial(
     fecha_fin DATE,
     constraint historial_salarial_fk foreign key (empleado_dni) references empleados(dni) ON UPDATE CASCADE ON DELETE CASCADE
 
-);
-
--- Creamos la tabla trabajos
-CREATE TABLE trabajos(
-    trabajo_cod int(5),
-    nombre_trab varchar(20) not null,
-    salario_min decimal(2,1),
-    salario_max decimal(2,1),
-    constraint trabajo_pk primary key (trabajo_cod)
 );
 
 /* ORDEN AL INSERTAR LAS TABLAS
@@ -101,6 +104,7 @@ alter table trabajos modify nombre_trab varchar(20) not null unique; -- Restricc
 
 -- Ejercicio 4 respetar orden cronologico fechas historiales
 alter table historial_laboral add constraint f_inicio_ck CHECK (fecha_inicio<fecha_fin); -- restriccion fecha inicio menor que fecha fin
-
-alter table historial_salarial add constraint f_inicio_ck CHECK (fecha_comienzo<fecha_fin); -- restriccion fecha inicio menor que fecha fin
--- Aplicar salario null cuando fecha fin sea null??
+alter table historial_salarial add constraint f_inicio_laboral_ck CHECK (fecha_comienzo<fecha_fin or salario=null); -- restriccion fecha inicio menor que fecha fin
+-- Restriccion 1 solo salario 1 solo trabajo con update y delete cascade al crear tablas
+alter table historial_salarial add constraint salario_ck check (fecha_fin and salario !=fecha_comienzo and salario);
+alter table historial_laboral add constraint trabajo_ck check (trab_cod and fecha_fin !=trab_cod and fecha_inicio);

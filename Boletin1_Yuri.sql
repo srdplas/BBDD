@@ -73,6 +73,7 @@ ALTER TABLE curso ADD CONSTRAINT hora_ck CHECK (num_horas>100);
 -- Restriccion fecha fin > fecha inicio
 
 alter table curso add constraint fechas CHECK (fecha_inicio<fecha_fin);
+alter table curso add constraint num_max CHECK (maximo_alumnos>10);
 
 
 -- Añadimos los apellidos ya que no existian las columnas
