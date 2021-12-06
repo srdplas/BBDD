@@ -111,8 +111,8 @@ alter table historial_salarial add constraint f_inicio_laboral_ck CHECK (fecha_c
 alter table historial_salarial add constraint salario_ck unique (empleado_dni, salario, fecha_comienzo);
 -- Establecemos una restriccion para que el dni, la fecha de inicio y fecha fin sean unicos en base al conjunto
 alter table historial_laboral add constraint trabajo_ck unique (empleado_dni, fecha_inicio,fecha_fin);
--- Insertamos 2 tuplas a cada tabla
 
+-- Insertamos 2 tuplas a cada tabla
 insert into empleados values('85678432','Yuri', 'Zayas', 'Martinez', 'c/ san juan n1º 13', null, 'Sevilla', 'San Juan', '45609', 'H', '2000-12-04');
 insert into empleados values('85328432','Manuela', 'Rodriguez', 'Lopez', 'c/ san tomas nº 2', null, 'Sevilla', 'Mairena', '32609', 'M', '1999-05-11');
 
@@ -135,12 +135,6 @@ insert into historial_laboral values('85328432', 3, '2018-12-12','2020-12-13', 9
 -- Teniendo en cuenta que la fecha de inicio y fin viene del historial laboral, dichas fechas son FK la cual pusimos al crear tablas
 insert into historial_salarial values('85678432', 1500, '2021-12-12', null);
 insert into historial_salarial values('85328432', 600, '2018-12-12', '2020-12-13');
-
-    empleado_dni int(8),
-    salario INTEGER,
-    fecha_comienzo date,
-    fecha_fin DATE,
-    constraint historial_salarial_fk foreign key (empleado_dni) references empleados(dni) ON UPDATE CASCADE ON DELETE CASCADE
 
 
 
