@@ -67,20 +67,19 @@ CREATE TABLE historial_laboral(
     supervisor_dni int(8),
     constraint historial_laboral_fk foreign key (empleado_dni) references empleados(dni) ON UPDATE CASCADE ON DELETE CASCADE,
     constraint dpto_fk foreign key (dpto_cod) references departamentos(dpto_cod) ON UPDATE CASCADE ON DELETE CASCADE,
-    constraint supervisor_dni_fk foreign key (supervisor_dni) references empleados(dni) ON UPDATE CASCADE ON DELETE CASCADE
-    constraint trabajo_fk foreign key (trab_cod) references trabajos(trabajo_cod) ON UPDATE CASCADE ON DELETE CASCADE;
+    constraint supervisor_dni_fk foreign key (supervisor_dni) references empleados(dni) ON UPDATE CASCADE ON DELETE CASCADE,
+    constraint trabajo_fk foreign key (trab_cod) references trabajos(trabajo_cod) ON UPDATE CASCADE ON DELETE CASCADE
 );
 -- Creamos la tabla historial salarial con fk de empleados
 CREATE TABLE historial_salarial(
     empleado_dni int(8),
     salario INTEGER,
     fecha_comienzo date,
-    fecha_fin DATE,
+    fecha_fin date,
     constraint historial_salarial_fk foreign key (empleado_dni) references empleados(dni) ON UPDATE CASCADE ON DELETE CASCADE
-    constraint historial_inicio_fk foreign key (fecha_comienzo) references historial_laboral(fecha_inicio) ON UPDATE CASCADE ON DELETE CASCADE
-    constraint historial_fin_fk foreign key (fecha_fin) references historial_laboral(fecha_fin) ON UPDATE CASCADE ON DELETE CASCADE
+    
 );
-
+alter table historial_salarial add constraint salario_fin_fk foreign key (fecha_comienzo) references historial_laboral(fecha_inicio);
 /* ORDEN AL INSERTAR LAS TABLAS
 1 empleados          5 estudios 
 2 trabajos           6 historial laboral
@@ -135,6 +134,31 @@ insert into historial_laboral values('85328432', 3, '2018-12-12','2020-12-13', 9
 -- Teniendo en cuenta que la fecha de inicio y fin viene del historial laboral, dichas fechas son FK la cual pusimos al crear tablas
 insert into historial_salarial values('85678432', 1500, '2021-12-12', null);
 insert into historial_salarial values('85328432', 600, '2018-12-12', '2020-12-13');
+
+-- ---------------------------------------------------------------------------------------------------------------- --
+
+alter table empleados disable keys;
+alter table empleados enable keys;
+
+insert into empleados values('111222', 'Sergio', 'Palma', 'Entrena', null, null, null, null, null, 'P', null);
+insert into empleados values('222333', 'Lucia', 'Ortega', 'Plus', null, null, null, null, null, null, null);
+-- --
+
+insert into historial_laboral values ('111222', null, '1996-06-16', null, null, '222333');
+
+/*
+Borramos la constraint nos deja introducir los valores y para añadirla de nuevo
+
+*/
+
+
+
+
+
+
+
+
+
 
 
 
