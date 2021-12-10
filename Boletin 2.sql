@@ -170,7 +170,7 @@ delete from universidades where univ_cod=4;
 -- Hace referencia a otra tabla.
 
 -- Añadimos restriccion para que las personas de sexo masculino tengan que tener el campo de f_nacimiento en not null
-alter table empleados add constraint hombre_check check (fecha_nac not null where sexo='H');
+alter table empleados add constraint hombre_check check (fecha_nac is not null where sexo='H');
 
 
 
