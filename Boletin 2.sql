@@ -40,10 +40,11 @@ CREATE TABLE universidades(
 CREATE TABLE departamentos(
     dpto_cod int(5),
     nombre_dpto varchar(30) not null,
-    jefe int(5),
+    jefe int(8),
     presupuesto INTEGER,
     pres_actual INTEGER,
-    constraint departamentos_pk primary key (dpto_cod)
+    constraint departamentos_pk primary key (dpto_cod),
+    constraint jefe_fk foreign key (jefe) REFERENCES empleados(dni)
 );
 -- Tabla estudios con fk en tabla universidades y empleados
 CREATE TABLE estudios(
@@ -79,7 +80,9 @@ CREATE TABLE historial_salarial(
     constraint historial_salarial_fk foreign key (empleado_dni) references empleados(dni) ON UPDATE CASCADE ON DELETE CASCADE
     
 );
-alter table historial_salarial add constraint salario_fin_fk foreign key (fecha_comienzo) references historial_laboral(fecha_inicio);
+alter table historial_salarial add constraint salario_inicio_fk foreign key (fecha_comienzo) references historial_laboral(fecha_inicio);
+alter table historial_salarial add constraint salario_fin_fk foreign key (fecha_fin) references historial_laboral(fecha_fin);
+
 /* ORDEN AL INSERTAR LAS TABLAS
 1 empleados          5 estudios 
 2 trabajos           6 historial laboral
@@ -148,10 +151,26 @@ insert into historial_laboral values ('111222', null, '1996-06-16', null, null, 
 
 /*
 Borramos la constraint nos deja introducir los valores y para añadirla de nuevo
-
+tenemos que borrar los datos introducidos para poder volver a poner la restriccion
 */
 
+-- Si asignamos un supervisor que no está en la lista de empleados, violaría la segunda regla de integridad, puede ser nulo pero 
+-- no puede tomar un valor que no esté en la lista de empleados.
 
+-- Borramos una universidad de la tabla universidades
+
+delete from universidades where univ_cod=4; -- Al borrar la universidad desaparece el empleado asociado a esta en la tabla estudios.
+-- Añadimos lo que hemos perdido al borrar la universidad, editamos para que aunque borramos se siga manteniendo los datos.
+
+alter table estudios drop constraint estudios_universidad_fk;
+alter table estudios add constraint estudios_universidad_fk foreign key (universidad) references universidades (univ_cod);
+
+delete from universidades where univ_cod=4;
+-- Si borramos la universidad sin el on update cascade on delete cascade no nos dejará borrar la universidad porque 
+-- Hace referencia a otra tabla.
+
+-- Añadimos restriccion para que las personas de sexo masculino tengan que tener el campo de f_nacimiento en not null
+alter table empleados add constraint hombre_check check (fecha_nac not null where sexo='H');
 
 
 
