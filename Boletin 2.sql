@@ -172,10 +172,10 @@ delete from universidades where univ_cod=4;
 -- Hace referencia a otra tabla.
 
 -- Añadimos restriccion para que las personas de sexo masculino tengan que tener el campo de f_nacimiento en not null
-alter table empleados add constraint hombre_check check (fecha_nac is not null where sexo='H');
+alter table empleados add constraint hombre_check check (fecha_nac is not null and sexo='H');
 
 -- Añadimos un nuevo atributo a la tabla de empleados , valoracion con un valor por defecto de 5
-alter table empleados add column valoracion DECIMAL (4,2) default 5;
+alter table empleados add column valoracion DECIMAL (4,2) default 5 check(valoracion>=1 and valoracion<=10);
 -- Nada mas insertarlo como no le hemos dado valores , la valoracion de las tuplas de todos los empleados se pone a 5
 insert into empleados (dni, nombre, apellido1, apellido2, direcc1, direcc2, ciudad, municipio, cod_postal, sexo, fecha_nac) 
 values('25678943','Carmen', 'Perez', 'Gomez', 'c/ tomas destro n1º 13', null, 'Malaga', 'Marbella', '61230', 'M', '1995-01-07');
