@@ -133,7 +133,7 @@ select ID_ASIG, nombre from asignatura;
 -- Como la tabla tiene solo dos campos el primer comando tambien serviría
 
 /*	4. Mostrar el DNI, nombre y apellidos de los profesores, ordenados por DNI ascendentemente	*/
-select ID_PROF, nombre, apellidos from profesor order by ID_PROF asc;
+select dni, nombre, apellidos from profesor order by dni asc;
 
 /*	5. Mostrar los datos de los alumnos de mayor a menor edad, de forma que en la columna de la
 fecha de nacimiento aparezca el encabezado “Fecha_de_nacimiento”	*/
