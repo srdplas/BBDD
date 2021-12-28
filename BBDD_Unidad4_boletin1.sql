@@ -122,10 +122,10 @@ INSERT INTO MATRICULADO (ID_ALUM, ID_ASIG, Nota1, Nota2, Nota3) VALUES (9, 3, 6,
 INSERT INTO MATRICULADO (ID_ALUM, ID_ASIG, Nota1, Nota2, Nota3) VALUES (10, 2, 9, 5, 5);
 
 /*	1. Mostrar el nombre de las provincias	*/
-select nombre from provincias;
+select nombre from provincia;
 
 /*	2. Mostrar el nombre y apellidos de los alumnos	*/
-select nombre, apellido1, apellido2 from alumno;
+select nombre, apellidos from alumno;
 
 /*	3. Mostrar el código y el nombre de todas las asignaturas	*/
 select * from asignatura;
@@ -140,7 +140,7 @@ fecha de nacimiento aparezca el encabezado “Fecha_de_nacimiento”	*/
 select id_alum, nombre, apellidos, fecha_nac as fecha_de_nacimiento from alumno ORDER by fecha_nac asc;
 
 /*	6. Mostrar los datos del alumno cuyo DNI es 56846315M.	*/
-select * from alumno where id_alum='56846315M';
+select * from alumno where dni='56846315M';
 
 /*	7. Mostra los alumnos nacidos en las provincias cuyos códigos estén comprendidos entre 3 y 7	*/
 select * from alumno where nacido_en>=3 or 7<=nacido_en;
