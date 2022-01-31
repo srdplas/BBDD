@@ -144,10 +144,11 @@ select * from alumno where dni='56846315M';
 
 /*	7. Mostra los alumnos nacidos en las provincias cuyos códigos estén comprendidos entre 3 y 7	*/
 select * from alumno where nacido_en>=3 or 7<=nacido_en;
+select * from alumno where nacido_en BETWEEN "3" and "7";
 
 /*	8. Mostrar los profesores nacidos en alguna de estas provincias: 1, 3, 5, 7.	*/
 select * from profesor where nacido_en=1 or nacido_en=3 or nacido_en=5 or nacido_en=7;
-
+select * from profesor where nacido_en in (1,3,5,7);
 /*	9. Mostrar los alumnos nacidos entre el 19/02/1980 y el 20/07/1984.	*/
 select * from alumno where fecha_nac between '1980-02-19' and '1984-07-20';
 
@@ -158,7 +159,10 @@ select * from matriculado where id_alum=7;
 -- Si ponemos 1997 todos van a ser mayores de 24 años a dia de hoy, el boletin es antiguo y pondre 1977
 select nombre, apellidos from alumno where fecha_nac<'1997-01-01'; -- Si fuese a dia de hoy
 select nombre, apellidos from alumno where fecha_nac<'1977-01-01'; -- Fecha de cuando se hizo el boletin
+-- Variante para mayores de 30
 
+select nombre, apellidos as anio from alumno where fecha_nac>=DATE_ADD(curdate(),INTERVAL -30 YEAR);
+select nombre, apellidos from alumno where TIMESTAMPDIFF(YEAR,Fecha_Nac,now())>30;
 /*	12. Mostrar aquellos alumnos cuyo DNI contenga la letra ‘Y’.	*/
 select * from alumno where dni like '%y';	-- Busca en dni que contenga x caracteres pero acabe en Y
 
