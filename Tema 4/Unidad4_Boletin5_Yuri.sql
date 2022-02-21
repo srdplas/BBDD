@@ -147,12 +147,21 @@ VALUES ('S1', 'P2', 'J4', 175);
 /*  1. Obtener todos los atributos de todos los proyectos.      */
 
 select * from proyecto;
+-- VISTAS
+CREATE VIEW VISTA1 AS select * from proyecto;
 
 /*  2. Obtener todos los atributos de todos los proyectos desarrollados en Londres. */
 select * from proyecto where ciudad like 'Londres';
+--VISTAS 
+CREATE VIEW VISTA2 AS select * from proyecto where ciudad like 'Londres';
 
 /*  3. Obtener los códigos de las piezas suministradas por el proveedor s2, ordenados.  */
 select codpie from pieza join ventas on pieza.codpie=ventas.codp 
+where codpie in (select codp from ventas where codpro='S2') 
+group by codpie order by codpie asc;
+
+--VISTAS
+CREATE VIEW VISTA3 AS select codpie from pieza join ventas on pieza.codpie=ventas.codp 
 where codpie in (select codp from ventas where codpro='S2') 
 group by codpie order by codpie asc;
 
@@ -201,3 +210,201 @@ select * from ventas where cantidad between 300 and 750;
 select codpie from pieza where color!='Gris' and color not in (select codpie from pieza where color!='Azul') group by codpie;
 
 /*	18. Añade una nueva columna llamada fecha que indique la fecha de adquisición de una pieza por proveedor y proyecto.	*/
+alter table ventas add fecha_adquisicion date;
+
+/*	19. Modificar la fecha de adquisición de todas las piezas p2 a la fecha actual.	*/
+update ventas set fecha_adquisicion=now() where codp='p2';
+
+/*	20. Se desea visualizar la fecha con formato del ejemplo ’11-NOV-2002’.	*/
+select date_format(fecha_adquisicion, "%d-%b-%Y") from ventas;
+
+/*	21. Modificar la fecha de adquisición en los que participan los proyectos j1 y j2 a la fecha
+12-11-2001	*/
+
+update ventas set fecha_adquisicion='2001-11-12' where codpj between 'j1' and 'j2';
+
+-- 04-02-2022
+select codpro, codp, codpj, cantidad, date_format(fecha_adquisicion, '%d-%m-%Y')as 'Formato Fechas' from ventas;
+-- 04 Febrero del 2022
+select codpro, codp, codpj, cantidad, date_format(fecha_adquisicion, '%d del %M del %Y')as 'Formato Fechas' from ventas;
+-- 04/02/22
+select codpro, codp, codpj, cantidad, date_format(fecha_adquisicion, '%d-%m-%y')as 'Formato Fechas' from ventas;
+-- 11-NOV-2002
+select codpro, codp, codpj, cantidad, date_format(fecha_adquisicion, '%d-%b-%Y')as 'Formato Fechas' from ventas;
+
+/*22. Construir una lista ordenada de todas las ciudades en las que al menos resida un
+suministrador, una pieza o un proyecto.	*/
+select ciudad as ciudades from proveedor where codpro is not null union
+(select ciudad from pieza where codpie is not null union 
+(select ciudad from proyecto where codpj is not null));
+
+/*	23. Obtener todas las posibles combinaciones entre piezas y proveedores.	*/
+select distinct codpro, codp from ventas;
+
+/*24. Obtener todos los posibles tríos de código de proveedor, código de pieza y código de
+proyecto en los que el proveedor, pieza y proyecto estén en la misma ciudad.*/
+select codpro, codpie, codpj 
+from proyecto, proveedor, pieza where proveedor.ciudad=proyecto.ciudad and proyecto.ciudad=pieza.ciudad;
+
+/*	25. Obtener los códigos de proveedor, de pieza y de proyecto de aquellos cargamentos en
+los que proveedor, pieza y proyecto estén en la misma ciudad.*/
+
+select distinct codpro, codpie, codpj 
+from proyecto, proveedor, pieza 
+where proveedor.ciudad=proyecto.ciudad and proyecto.ciudad=pieza.ciudad union (select codpro, codp, codpj from ventas);
+
+/*	26. Obtener todos los posibles tríos de código de proveedor, código de pieza y código de
+proyecto en los que el proveedor, pieza y proyecto no estén todos en la misma ciudad.	*/
+select distinct codpro, codpie, codpj 
+from proyecto, proveedor, pieza 
+where proveedor.ciudad<>proyecto.ciudad or proyecto.ciudad<>pieza.ciudad;
+
+/*	27. Obtener todos los posibles tríos de código de proveedor, código de pieza y código de proyecto en los que el proveedor, pieza
+ y proyecto no estén ninguno en la misma ciudad.*/
+select distinct codpro, codpie, codpj 
+from proyecto, proveedor, pieza where proveedor.ciudad<>proyecto.ciudad and proyecto.ciudad<>pieza.ciudad;
+
+/*	28. Obtener los códigos de las piezas suministradas por proveedores de	Londres*/
+select ventas.codp from ventas natural join proveedor where ciudad like 'Londres';
+
+/*	29. Obtener los códigos de las piezas suministradas por proveedores de Londres a proyectos en Londres.*/
+select ventas.codp from ventas natural join proveedor natural join proyecto where proveedor.ciudad like 'Londres' and proyecto.ciudad like 'Londres';
+
+/*	30. Obtener todos los pares de nombres de ciudades en las que un proveedor de la primera sirva a un proyecto de la segunda.*/
+select proyecto.ciudad, proveedor.ciudad from ventas 
+join proveedor on ventas.codpro=proveedor.codpro join proyecto on ventas.codpj=proyecto.codpj
+where ventas.codpro like 'S1' and ventas.codpj like 'J2';
+
+/*	31. Obtener códigos de piezas que sean suministradas a un proyecto por un proveedor de la
+misma ciudad del proyecto.*/
+select codp from ventas 
+join proveedor on ventas.codpro=proveedor.codpro join proyecto on ventas.codpj=proyecto.codpj
+join pieza on pieza.codpie=ventas.codp where proyecto.ciudad=proveedor.ciudad;
+
+/*	32. Obtener códigos de proyectos que sean suministrados por un proveedor de una ciudad
+distinta a la del proyecto. Visualizar el código de proveedor y el del proyecto.*/
+
+select distinct ventas.codpj, ventas.codpro from ventas 
+where codpro in (select codpro from proveedor 
+where ciudad not in (select ciudad from proyecto));
+
+/*	33. Obtener todos los pares de códigos de piezas suministradas por el mismo proveedor.	*/
+select codp, codpro from ventas where codpro in(select codpro from ventas);
+
+/*	34. Obtener todos los pares de códigos de piezas suministradas por el mismo proveedor.
+(eliminar pares repetidos)*/
+select distinct codp, codpro from ventas where codpro in(select codpro from ventas);
+
+/*	35. Obtener para cada pieza suministrada a un proyecto, el código de pieza, el código de
+proyecto y la cantidad total correspondiente.	*/
+select codp, codpro, codpj, SUM(cantidad)as cantidad_total from ventas group by codp;
+
+/*	36. Obtener los códigos de proyectos y los códigos de piezas en los que la cantidad media suministrada a algún proyecto 
+sea superior a 320.	*/
+select codpj, codp from ventas where cantidad>all (select avg(cantidad) from ventas) group by codp;
+
+/*	37. Obtener un listado ascendente de los nombres de todos los proveedores que hayan suministrado una cantidad 
+superior a 100 de la pieza p1. Los nombres deben aparecer en mayúsculas.*/
+select distinct UPPER(nompro)as nombre_proveedor from proveedor
+where codpro in(select codpro from ventas where codp like 'p1' and cantidad>100) order by nompro asc;
+
+/*	38. Obtener los nombres de los proyectos a los que suministra s1.*/
+select nompj, codpj from proyecto where codpj in (select codpj from ventas where codpro like 's1');
+
+/*	39. Obtener los colores de las piezas suministradas por s1.*/
+select distinct color from pieza join ventas on pieza.codpie=ventas.codp where codp in (select codp from ventas where codpro like 's1');
+
+/*	40. Obtener los códigos de las piezas suministradas a cualquier proyecto de Londres.	*/
+select distinct codp from ventas where codpj in (select codpj from proyecto where ciudad like 'Londres');
+
+/*	41. Obtener los códigos de los proveedores con estado menor que s1.	*/
+select codpro from proveedor where proveedor.status>(select proveedor.status from proveedor where codpro like 's1');
+
+/*	42. Obtener los códigos de los proyectos que usen la pieza pl en una cantidad media mayor que la mayor cantidad en la
+ que cualquier pieza sea suministrada al proyecto j1.*/
+select distinct codpj from ventas where codp like 'p1' in 
+(select codp from ventas where cantidad>some
+(select avg(cantidad) from ventas where cantidad >some
+(select cantidad from ventas where codpj like 'j1')));
+
+/*	43. Obtener códigos de proveedores que suministren a algún proyecto la pieza p1 en una cantidad mayor 
+que la cantidad media en la que se suministra la pieza p1 a dicho proyecto.*/
+select distinct codpro from ventas where codpro in 
+(select codpro from ventas where codp like 'p1' in 
+(select codp from ventas where cantidad>some
+(select avg(cantidad) from ventas where codp like 'p1')));
+
+/*	44. Obtener los códigos de los proyectos que usen al menos una pieza suministrada por s1.	*/
+select distinct codpj from ventas where codp in (select codp from ventas where codpro like 's1');
+
+select codpj from ventas where codp in (select codp from ventas where codpro like 's1') group by codpj; -- OTRA OPCION PARA TUPLAS REPETIDAS
+
+/*	45. Obtener los códigos de los proveedores que suministren al menos una pieza suministrada 
+al menos por un proveedor que suministre al menos una pieza roja.*/	
+SELECT distinct codpro from ventas where codp=any (select codp from ventas join pieza on ventas.codp=pieza.codpie where color like 'Rojo');
+
+/*	46. Obtener los códigos de las piezas suministradas a cualquier proyecto de Londres usando EXISTS.*/
+select distinct codp from ventas where codpj in (select codpj from ventas where exists (select codpj from proyecto where ciudad like 'Londres'));
+
+/*	47. Obtener los códigos de los proyectos que usen al menos una pieza suministrada por s1 usando EXISTS.	*/
+select distinct codpj from ventas where exists (select codp from ventas where codpro like 's1');-- SubConsulta usando Exists
+
+select distinct codpj from ventas where codpj in 
+(select codpj from ventas where codp in 
+(select codp from ventas where codpro like 's1')); -- SubConsulta sin el Exists
+
+/*	48. Obtener los códigos de los proyectos que no reciban ninguna pieza roja suministrada por algún proveedor de Londres.*/
+select distinct codpj from ventas where codpj not in
+(select codpj from ventas where codp>any
+(select codpie from ventas join pieza on ventas.codp=pieza.codpie join proveedor on ventas.codpro=proveedor.codpro
+where color like 'Rojo' and proveedor.ciudad like 'Londres'));
+
+/*	49. Obtener los códigos de los proyectos suministrados únicamente por s1.	*/
+select codpj from ventas where 1=(select count(codpro) from ventas where codpro like 's1');
+
+/*	50. Obtener los códigos de las piezas suministradas a todos los proyectos en Londres.	*/
+select distinct codp from ventas where codp>some
+(select codp from ventas where codpj>all
+(select codpj from proyecto where ciudad like 'Londres'));
+
+/*	51. Obtener los códigos de los proveedores que suministren la misma pieza todos a los proyectos.*/
+select distinct codpro from ventas where codpro>all (select codpro from ventas where codpj>all(select codpj from ventas ));
+
+/*	52. Obtener los códigos de los proyectos que reciban al menos todas las piezas que suministra s1.*/
+select distinct codpj from ventas where codpj>some 
+(select codpj from ventas where codp>all 
+(select codp from ventas where codpro like 's1'));
+
+/*	53. Cambiar el color de todas las piezas rojas a naranja.	*/
+update pieza set color='Naranja' where color like 'Rojo';
+
+/*	54. Borrar todos los proyectos para los que no haya cargamentos.	*/
+delete from proyecto where not exists (select codpro from ventas);
+
+/*	55. Borrar todos los proyectos en Roma y sus correspondientes cargamentos.	*/
+delete from ventas where exists (select codpro from proyecto where ciudad like 'Roma'); -- Borramos primero la FK
+delete from proyecto where ciudad like 'Roma'; -- Después con la misma condicion de la tabla original
+
+/*	56. Insertar un nuevo suministrador s lo en la tabla S. El nombre y la ciudad son 'White'y ‘New York' respectivamente. 
+El estado no se conoce todavía.*/
+insert into proveedor (codpro, nompro, status, ciudad) values ('s', 'White', null, 'New York');
+
+/*	57. Construir una tabla conteniendo una lista de los códigos de las piezas suministrada.s a
+proyectos en Londres o suministradas por un suministrador de Londres.	
+
+No hemos dado Creacion de tablas usando un Select
+
+*/
+
+/*	58. Construir una tabla conteniendo una lista de los códigos de los proyectos de Londres o
+que tengan algún suministrador de Londres.
+
+No hemos dado Creacion de tablas usando un Select
+
+*/
+
+/*	59. Listar las tablas y secuencias definidas por el usuario ZEUS.	
+
+No hemos dado usuarios
+
+*/
