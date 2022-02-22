@@ -1,3 +1,4 @@
+drop database boletin5;
 CREATE DATABASE boletin5;
 use boletin5;
 
@@ -277,7 +278,7 @@ where ventas.codpro like 'S1' and ventas.codpj like 'J2';
 
 /*	31. Obtener códigos de piezas que sean suministradas a un proyecto por un proveedor de la
 misma ciudad del proyecto.*/
-select codp from ventas 
+select distinct codp from ventas 
 join proveedor on ventas.codpro=proveedor.codpro join proyecto on ventas.codpj=proyecto.codpj
 join pieza on pieza.codpie=ventas.codp where proyecto.ciudad=proveedor.ciudad;
 
@@ -318,7 +319,7 @@ select distinct color from pieza join ventas on pieza.codpie=ventas.codp where c
 select distinct codp from ventas where codpj in (select codpj from proyecto where ciudad like 'Londres');
 
 /*	41. Obtener los códigos de los proveedores con estado menor que s1.	*/
-select codpro from proveedor where proveedor.status>(select proveedor.status from proveedor where codpro like 's1');
+select codpro from proveedor where proveedor.status<(select proveedor.status from proveedor where codpro like 's1');
 
 /*	42. Obtener los códigos de los proyectos que usen la pieza pl en una cantidad media mayor que la mayor cantidad en la
  que cualquier pieza sea suministrada al proyecto j1.*/
@@ -382,7 +383,7 @@ update pieza set color='Naranja' where color like 'Rojo';
 delete from proyecto where not exists (select codpro from ventas);
 
 /*	55. Borrar todos los proyectos en Roma y sus correspondientes cargamentos.	*/
-delete from ventas where exists (select codpro from proyecto where ciudad like 'Roma'); -- Borramos primero la FK
+delete from ventas where codpj>all(select codpj from proyecto where ciudad like 'Roma'); -- Borramos primero la FK
 delete from proyecto where ciudad like 'Roma'; -- Después con la misma condicion de la tabla original
 
 /*	56. Insertar un nuevo suministrador s lo en la tabla S. El nombre y la ciudad son 'White'y ‘New York' respectivamente. 
@@ -390,18 +391,22 @@ El estado no se conoce todavía.*/
 insert into proveedor (codpro, nompro, status, ciudad) values ('s', 'White', null, 'New York');
 
 /*	57. Construir una tabla conteniendo una lista de los códigos de las piezas suministrada.s a
-proyectos en Londres o suministradas por un suministrador de Londres.	
-
-No hemos dado Creacion de tablas usando un Select
-
-*/
+proyectos en Londres o suministradas por un suministrador de Londres.	*/
+CREATE or replace VIEW codigos as 
+select distinct codp from ventas where codpro in
+(select codpro from ventas where codpro in 
+(select codpro from proveedor where ciudad like 'Londres')or codpj in 
+(select codpj from ventas where codpj in
+(select codpj from proyecto where ciudad like 'Londres')));
 
 /*	58. Construir una tabla conteniendo una lista de los códigos de los proyectos de Londres o
-que tengan algún suministrador de Londres.
+que tengan algún suministrador de Londres.	*/
+create or replace view lista as 
+select distinct codpj from ventas where codpj in 
+(select codpj from proyecto where ciudad like 'Londres')or codpro in 
+(select codpro from ventas where codpro in 
+(select codpro from proveedor where ciudad like 'Londres'));
 
-No hemos dado Creacion de tablas usando un Select
-
-*/
 
 /*	59. Listar las tablas y secuencias definidas por el usuario ZEUS.	
 
